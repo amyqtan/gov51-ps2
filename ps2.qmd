@@ -1,0 +1,187 @@
+---
+title: "Problem Set 2"
+author: "Amy Tan"
+format: pdf
+editor: visual
+---
+
+## Github
+
+Github link: <https://github.com/amyqtan/gov51-ps2>
+
+## Loading Packages & Data
+
+```{r}
+library(tidyverse) 
+gay <- read_csv("data/raw/gay.csv")
+```
+
+## Q1.1
+
+```{r}
+nrow(gay) #Number of total observations
+gay %>% count(study)
+gay %>% count(treatment)
+
+```
+
+There are 69592 total observations. The study takes two unique values. All treatment conditions in the treatment variable are No Contact, Recycling Script by Gay Canvasser, Recycling Script by Straight Canvasser, Same-Sex Marriage Script by Gay Canvasser, and Same-Sex Marriage Script by Straight Canvasser. (There are five total treatment conditions.)
+
+## Q1.2
+
+```{r}
+gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  group_by(treatment) %>%
+  summarize(mean(ssm))
+
+
+```
+
+Recycling Script by Gay Canvasser shows highest average support.
+
+## Q1.3
+
+```{r}
+gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  group_by(treatment) %>%
+  summarize(sd(ssm))
+```
+
+## Question 1.4
+
+```{r}
+study1wave1_mean <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  group_by(treatment) %>%
+  summarize(mean_ssm = mean(ssm))
+
+study1wave1_plot <- study1wave1_mean %>% 
+  ggplot(mapping = aes(x=mean_ssm, y = treatment)) + geom_col(stat="identity") + labs(title = "Script Efficacy", y = "Treatment", x = "Mean Same Sex Marriage Attitude") 
+
+study1wave1_plot
+```
+
+## Question 1.5
+
+```{r}
+mean_marriage_gay_w1 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
+  summarize(mean(ssm))
+
+sd_marriage_gay_w1 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
+  summarize(sd(ssm))
+
+mean_no_contact_w1 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  filter(treatment == "No Contact") %>%
+  summarize(mean(ssm))
+
+sd_no_contact_w1 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 1) %>%
+  filter(treatment == "No Contact") %>%
+  summarize(sd(ssm))
+
+mean_marriage_gay
+sd_marriage_gay
+mean_no_contact
+sd_no_contact
+
+std_diff_means <- (mean_marriage_gay_w1 - mean_no_contact_w1)/sqrt(((sd_marriage_gay_w1)^2 + (sd_no_contact_w1)^2)/2)
+
+std_diff_means
+```
+
+These groups look similar at baseline, since the standard difference of means is -0.010, which has an absolute value lower than 0.25.
+
+## Question 1.6
+
+```{r}
+mean_marriage_gay_w2 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 2) %>%
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
+  summarize(mean(ssm))
+
+sd_marriage_gay_w2 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 2) %>%
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
+  summarize(sd(ssm))
+
+mean_no_contact_w2 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 2) %>%
+  filter(treatment == "No Contact") %>%
+  summarize(mean(ssm))
+
+sd_no_contact_w2 <- gay %>% 
+  filter(study == 1) %>% 
+  filter(wave == 2) %>%
+  filter(treatment == "No Contact") %>%
+  summarize(sd(ssm))
+
+
+std_diff_means <- (mean_marriage_gay_w2 - mean_no_contact_w2)/sqrt(((sd_marriage_gay_w2)^2 + (sd_no_contact_w2)^2)/2)
+
+std_diff_means
+```
+
+## Question 2.1
+
+```{r}
+gay_r <- read_csv("data/raw/gayreshaped.csv") 
+ccap <- read_csv("data/raw/ccap2012.csv")
+
+nrow(gay_r)
+colnames(gay_r)
+nrow(ccap)
+colnames(ccap)
+```
+
+For the gay reshaped dataset (gay_r), there are 11948 total observations and the column names are "study", "treatment", "therm1", "therm2", "therm3", and "therm4".
+
+For the CCAP 2012 dataset (ccap), there are 43998 total observations and the column names are "...1", "caseid", and "gaytherm".
+
+## Question 2.2
+
+```{r}
+comparison_table <- bind_rows(
+  gay_r %>% 
+  filter(study == 1) %>% 
+  summarize(dataset = "Gay Replication",
+            mean = mean(therm1), 
+            median = median(therm1), 
+            sd = sd(therm1)), 
+  
+  ccap %>% 
+  na.omit(ccap$gaytherm) %>% 
+  summarize(dataset = "CCAP 2012",
+            mean = mean(gaytherm), 
+            median = median(gaytherm), 
+            sd = sd(gaytherm)))
+
+comparison_table
+```
+
+writi
+
+## Question 2.3
+
+```{r}
+
+
+lacour_ccap <- cbind(gay_r, ccap)
+
+```
