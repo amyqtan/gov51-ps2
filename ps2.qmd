@@ -16,7 +16,7 @@ library(tidyverse)
 gay <- read_csv("data/raw/gay.csv")
 ```
 
-## Q1.1
+## Question 1.1
 
 ```{r}
 nrow(gay) #Number of total observations
@@ -27,7 +27,7 @@ gay %>% count(treatment)
 
 There are 69592 total observations. The study takes two unique values. All treatment conditions in the treatment variable are No Contact, Recycling Script by Gay Canvasser, Recycling Script by Straight Canvasser, Same-Sex Marriage Script by Gay Canvasser, and Same-Sex Marriage Script by Straight Canvasser. (There are five total treatment conditions.)
 
-## Q1.2
+## Question 1.2
 
 ```{r}
 gay %>% 
@@ -40,7 +40,7 @@ gay %>%
 
 For Study 1, Wave 1, treatment group "Recycling Script by Gay Canvasser" shows highest average support.
 
-## Q1.3
+## Question 1.3
 
 ```{r}
 gay %>% 
@@ -335,19 +335,27 @@ mean_marriage_gay_s2w2 - mean_no_contact_s2w2
 ```{r}
 var_gay <- gay_r_study2 %>% 
   filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
-  var(therm2)
+  summarize(var(therm2, na.rm = TRUE))
 
 n_gay <- gay_r_study2 %>% 
-  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>% nrow()
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>% 
+  drop_na(therm2) %>%
+  nrow()
 
 var_control <- gay_r_study2 %>% 
   filter(treatment == "No Contact") %>%
-  var(therm2)
+  summarize(var(therm2, na.rm = TRUE))
 
 n_control <- gay_r_study2 %>% 
-  filter(treatment == "No Contact") %>% nrow()
+  filter(treatment == "No Contact")  %>% 
+  drop_na(therm2) %>% 
+  nrow()
 
 standard_error <- sqrt((var_gay/n_gay)+(var_control/n_control))
+standard_error
+
+(mean_marriage_gay_s2w2 - mean_no_contact_s2w2) + 1.96 * standard_error
+(mean_marriage_gay_s2w2 - mean_no_contact_s2w2) - 1.96 * standard_error
 ```
 
 ## Question 3.6
