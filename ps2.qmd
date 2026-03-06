@@ -38,7 +38,7 @@ gay %>%
 
 ```
 
-For Study 1, Wave 1, treatment group "Recycling Script by Gay Canvasser" shows highest average support.
+For Study 1, Wave 1, treatment group "Recycling Script by Gay Canvasser" shows highest average support, with the highest mean of 3.13.
 
 ## Question 1.3
 
@@ -62,7 +62,7 @@ study1wave1_mean <- gay %>%
   summarize(mean_ssm = mean(ssm))
 
 study1wave1_plot <- study1wave1_mean %>% 
-  ggplot(mapping = aes(x=mean_ssm, y = treatment)) + geom_col(stat="identity", fill = "blue") + labs(title = "Mean Support for Gay Marriage by Group", y = "Treatment", x = "Mean Same Sex Marriage Attitude") 
+  ggplot(mapping = aes(x=mean_ssm, y = treatment)) + geom_col(stat="identity", fill = "blue") + labs(title = "Mean Support for Gay Marriage by Group", y = "Treatment Group", x = "Mean Same Sex Marriage Attitude (From 1 - 5)") 
 
 study1wave1_plot
 ```
@@ -109,36 +109,13 @@ These groups look similar at baseline, since the standard difference of means is
 ## Question 1.6
 
 ```{r}
-mean_marriage_gay_w2 <- gay %>% 
-  filter(study == 1) %>% 
-  filter(wave == 2) %>%
-  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
-  summarize(mean(ssm))
-
-sd_marriage_gay_w2 <- gay %>% 
-  filter(study == 1) %>% 
-  filter(wave == 2) %>%
-  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
-  summarize(sd(ssm))
-
-mean_no_contact_w2 <- gay %>% 
-  filter(study == 1) %>% 
-  filter(wave == 2) %>%
-  filter(treatment == "No Contact") %>%
-  summarize(mean(ssm))
-
-sd_no_contact_w2 <- gay %>% 
-  filter(study == 1) %>% 
-  filter(wave == 2) %>%
-  filter(treatment == "No Contact") %>%
-  summarize(sd(ssm))
+diff_means <- (mean_marriage_gay_w2 - mean_no_contact_w2)
 
 
-std_diff_means <- (mean_marriage_gay_w2 - mean_no_contact_w2)/sqrt(((sd_marriage_gay_w2)^2 + (sd_no_contact_w2)^2)/2)
-
-
-std_diff_means
+diff_means
 ```
+
+The difference in means is 0.099. Since the groups were balanced at baseline, we can assume that the difference in means can be attributed to the treatment. This is because the groups were the same pre-treatment, meaning a difference post-treatment suggests that the treatment had an effect.
 
 ## Question 2.1
 
@@ -177,7 +154,7 @@ comparison_table <- bind_rows(
 comparison_table
 ```
 
-writi
+Both data sets have very similar means, medians, and standard deviations. These similarities are very suspicious, since the data sets should have came from different populations.
 
 ## Question 2.3
 
@@ -193,7 +170,7 @@ gay_r_ccap <- gay_r_ccap %>%
   mutate(datasource = case_when(source == 1 ~ "Gay Replication", source == 2 ~ "CCAP 2012"))
 
 comparison_graph <- gay_r_ccap %>%
-  ggplot(mapping = aes(x=combined_therm)) + geom_histogram(breaks = seq(0, 100, by = 5), color ="black", fill = "steelblue", binwidth = 5) + facet_wrap(~datasource) + 
+  ggplot(mapping = aes(x=combined_therm)) + geom_histogram(breaks = seq(0, 100, by = 5), color ="black", fill = "steelblue", binwidth = 5) + facet_wrap(scales = "free_y", ~datasource) + 
     labs(x = "Thermometer Score towards Gay Men and Lesbians",
          y = "Number of Respondents",
          title = "Side-by-Side Comparison of Reshaped LaCour Data and CCAP 2012 Data") +
@@ -203,16 +180,18 @@ comparison_graph
 ggsave("/Users/amytan/Desktop/gov51-ps2/output/commute_histogram.png", plot = comparison_graph)
 ```
 
+These look like they came from the same population, since they have very similar distributions. Thus, they look like they do not come from different populations because of how there is similar peaking trends that are very specific. The whole entire data looks like it has the same exact spread (in a very specific manner), even with small variations in one graph reflected almost identically in the other one.
+
 ## Question 2.4a
 
 ```{r}
-gay_r_study1 <-gay_r %>% 
+gay_r_study1 <-gay_r %>% filter(treatment == "No Contact") %>%
   filter(study == 1)
 
 cor_therm_study1 <- cor(gay_r_study1$therm1, gay_r_study1$therm2, use = "complete.obs")
 cor_therm_study1
 
-gay_r_study2 <-gay_r %>% 
+gay_r_study2 <-gay_r %>% filter(treatment == "No Contact") %>%
   filter(study == 2)
 
 cor_therm_study2 <- cor(gay_r_study2$therm1, gay_r_study2$therm2, use = "complete.obs")
@@ -220,15 +199,17 @@ cor_therm_study2
 
 ```
 
+Study 2 shows a more plausible pattern, since for Study 1, the correlation coefficient of 0.995 (which is near 1) is extremely suspicious. On the contrary, Study 2 shows a more plausible pattern since 0.96 is within the normal range for re-test correlation of 0.95-0.97.
+
 ## Question 2.4b
 
 ```{r}
-gay_r_study1 <-gay_r %>% 
+gay_r_study1 <-gay_r %>% filter(treatment == "No Contact") %>%
   filter(study == 1)
 
 cor_therm_study1 <- cor(gay_r_study1$therm1, gay_r_study1$therm2, use = "complete.obs")
 
-gay_r_study2 <-gay_r %>% 
+gay_r_study2 <-gay_r %>% filter(treatment == "No Contact") %>%
   filter(study == 2)
 
 cor_therm_study2 <- cor(gay_r_study2$therm1, gay_r_study2$therm2, use = "complete.obs")
@@ -245,12 +226,13 @@ sd1
 sd2
 ```
 
-talk
+The standard deviation of the within-person change for Study 1 is 1.987678, whereas the standard deviation of the within-person change for Study 2 is 6.605738. Here, study 2 also presents a more plausible pattern, since it the standard deviation is larger and shows more realistic change, whereas study 2 correlates almost too perfectly. A larger variation indicates that the data is more "realistic" and more meaningful.
 
 ## Question 2.5
 
 ```{r}
-study1_plot <- gay_r %>% ggplot(mapping = aes(x=therm1, y = therm2)) + geom_point(shape = 21, fill = NA) + facet_wrap(~study, labeller = labeller(study = c("1" = "Study 1", "2"
+
+study1_plot <- gay_r %>% filter(treatment == "No Contact") %>% ggplot(mapping = aes(x=therm1, y = therm2)) + geom_point(shape = 21, fill = NA) + facet_wrap(~study, labeller = labeller(study = c("1" = "Study 1", "2"
 = "Study 2"))) + 
     labs(x = "Thermometer Score in Wave 1",
          y = "Thermometer Score in Wave 2",
@@ -258,9 +240,15 @@ study1_plot <- gay_r %>% ggplot(mapping = aes(x=therm1, y = therm2)) + geom_poin
 study1_plot
 ```
 
+Study 1 shows an almost-perfect correlation between thermometer score in wave 1 with the thermometer score in wave 2, whereas Study 2 shows more variation between the therm1 and therm2 scores. Study 1 shows a lot of clustering at 0, 50, and 100, indicating a lot of heaping that may have stemmed from fabricated data. Study 2 looks more like real longitudinal data with meaningful variation, because Study 1 shows a level of perfect correlation that appears unrealistic.
+
 ## Question 2.6
 
-yap
+The baseline distributions of the Study 1 data match the CCAP data almost perfectly based on the histogram in Q2.3.
+
+0.998 doesn't have enough meaningful variation
+
+Moreover, for within person variation (difference between therm and therm1), the standard deviation value of 1.91 for Study 1 (as opposed to the standard deviation value of 6.61 for Study 2) means that Study 1 does not really exhibit any meaningful variation, showing how the data for Study 1 is suspicious since the different respondents exhibit almost perfect correlation. Based on the correlation from Q2.4, there re-test correlation of 0.9975817 is extremely high and too perfect & close to one, supporting the takeaway that the Study 1 data is too perfect. Based on the scatterplot from Q2.5, the within-person changes are very small and do not show any meaningful variation.
 
 ## Question 3.1
 
@@ -292,6 +280,8 @@ sd_no_contact_s2w1
 mean_no_contact_s2w1
 ```
 
+There are a total of 2441 obervations in the data. For the treatment group, the mean of therm1 is 59.35 with a standard deviation of 28.42. For the control group, the mean of therm1 is 57.89 with a standard deviation of 28.70.
+
 ## Question 3.2
 
 ```{r}
@@ -300,18 +290,45 @@ mean_no_contact_s2w1
 comparison_graph2 <- gay_r %>%
   ggplot(mapping = aes(x=therm1)) + 
   geom_histogram(breaks = seq(0, 100, by = 5), color ="black", fill = "blue", binwidth = 5) +
-  facet_wrap(~study, labeller = labeller(study = c("1" = "Study 1", "2" = "Study 2"))) + 
+  facet_wrap(scales = "free_y", ~study, labeller = labeller(study = c("1" = "Study 1", "2" = "Study 2"))) + 
     labs(x = "Thermometer Score towards Gay Men and Lesbians",
          y = "Number of Respondents",
          title = "Side-by-Side Comparison of Study 1 and Study 2 Data")
 comparison_graph2
 ```
 
+There is meaningful variation between these histograms. While they show similar trends, there are some meaningful differences between the histograms.
+
 ## Question 3.3
 
 ```{r}
+sd_marriage_gay_s2w1 <- gay_r_study2 %>% 
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
+  summarize(sd(therm1))
 
+mean_marriage_gay_s2w1 <- gay_r_study2 %>% 
+  filter(treatment == "Same-Sex Marriage Script by Gay Canvasser") %>%
+  summarize(mean(therm1))
+
+sd_no_contact_s2w1 <- gay_r_study2 %>% 
+  filter(treatment == "No Contact") %>%
+  summarize(sd(therm1))
+
+mean_no_contact_s2w1 <- gay_r_study2 %>% 
+  filter(treatment == "No Contact") %>%
+  summarize(mean(therm1))
+
+sd_marriage_gay_s2w1
+mean_marriage_gay_s2w1
+sd_no_contact_s2w1
+mean_no_contact_s2w1
+
+std_diff_means <- (mean_marriage_gay_s2w1 - mean_no_contact_s2w1)/sqrt(((sd_marriage_gay_s2w1)^2 + (sd_no_contact_s2w1)^2)/2)
+
+std_diff_means
 ```
+
+For the treatment group, the mean of therm1 is 59.35 with a standard deviation of 28.42. For the control group, the mean of therm1 is 57.89 with a standard deviation of 28.70. Based on the means and standard deviations which are relatively similar, we can say that the treatment and control groups look balanced.
 
 ## Question 3.4
 
@@ -329,6 +346,8 @@ mean_no_contact_s2w2
 
 mean_marriage_gay_s2w2 - mean_no_contact_s2w2
 ```
+
+The difference in post-period means is 3.57. The mean for the treatment group is 61.20, and the mean for the control group is 57.64.
 
 ## Question 3.5
 
@@ -358,6 +377,8 @@ standard_error
 (mean_marriage_gay_s2w2 - mean_no_contact_s2w2) - 1.96 * standard_error
 ```
 
+The confidence interval does not include zero, since it is from 1.242138 to 6.002475. Thus, based on the confidence interval, we can conclude with 95% that the groups differ and we can reject the null hypothesis that there is no difference between the treatment and control.
+
 ## Question 3.6
 
 ```{r}
@@ -376,6 +397,18 @@ cor_therm_study2_control13
 cor_therm_study2_control14
 ```
 
+The correlations do not decay over time, and they fluctuate somewhat. This tells us that while people's attitudes correlated over time, their attitudes are not always stable. Moreover, these correlations fall into the range of 0.95-0.97, showing real-world trends.
+
+## Question 3.7
+
+Study 2 exhibits more meaningful and natural variation compared to Study 1. Specifically, the correlation between thermometers is much mo
+
+mean
+
+For Study 2, the correlations between wave 1 and subsequent waves fluctuated from 0.97 to 0.959 and back to 0.97, showing how even though there was significant correlation between waves, the correlation was not perfect. On the contrary, for Study 2, the correlations between wave 1 and wave 2 showed a near-perfect correlation. This is displayed in the scatterplot, where when therm1 and therm2 are graphed together, for Study 1, these values correlated almost perfectly whereas Study 2 showed realistic and meaningful variation.
+
+Additionally, considering the standard deviation for within person variation (difference between therm and therm1), the standard deviation value of 1.91 for Study 1 (as opposed to the standard deviation value of 6.61 for Study 2) means that Study 1 does not really exhibit any meaningful variation, showing how the data for Study 1 is suspicious since the different respondents exhibit almost perfect correlation. The histograms show a near perfect correlation between Study 1 and CCAP data, whereas comparing Study 1 and Study 2, there was not perfectly identical correlation. The Study 1 data and CCAP data should not have identical-appearing histograms with almost identical trends, considering that the populations were different.
+
 ## Question 4.1
 
 ```{r}
@@ -387,6 +420,8 @@ fit_s1 <- lm(therm2 ~ therm1, data = gay_control_s1)
 summary(fit_s1)
 ```
 
+The slope is 0.992454, R-squared value is 0.9952, and the residual standard error is 1.976.
+
 ## Question 4.2
 
 ```{r}
@@ -397,6 +432,8 @@ gay_control_s2 <- gay_r %>%
 fit_s2 <- lm(therm2 ~ therm1, data = gay_control_s2)
 summary(fit_s2)
 ```
+
+The slope is 0.968662, R-squared value is 0.9476, and the residual standard error is 6.547. We can see that beta 1 is less than 1 and that R-squared is a lower value that is high (the model explains 94% of the variation), but not as suspicious as study 1. Study 2 shows regression to the mean and in the second thermometer, we would expect this to happen, where extreme baseline scores regress to the mean. This pattern indicates that Study 2 has more realistic and less suspicious data.
 
 ## Question 4.3
 
@@ -411,13 +448,25 @@ summary(fit_s3)
 
 ```
 
+Beta 1 is 3.5679, the standard error is 1.2423, the t-statistic is 2.872, and the p-value is 0.00412. This value is identical to the difference in means calculated in Q3.4. Beta 0 estimates the value of therm2 for when treated = 0, which means beta 0 estimates the value of therm2 for the control group. The difference between groups is statistically significant, because 0.004 \< 0.05, indicating that it is statistically significant considering an alpha of 0.05.
+
 ## Question 4.4
 
 ```{r}
 
 fit_s4 <- lm(therm2 ~ treated + therm1, data = gay_r_2)
 summary(fit_s4)
+
+2.458857 - 3.5679
+0.341052 - 1.2423
+(0.341052 - 1.2423) / (1.2423)
 ```
+
+a\) The estimate decreased by 1.109, which is a moderate decrease, however, the estimate is still positive and still statistically significant.
+
+b\) The standard error changed decreased to by 0.901.
+
+c\) Controlling for baseline attitudes improve precision because it indicates that the two groups had similar baselines, so any difference in the treatment and control group must therefore stem from the treatment.
 
 ## Question 4.5
 
@@ -434,4 +483,6 @@ print(predict2)
 predict1-predict2
 ```
 
-The predicted difference in their Wave 2 attitudes
+The R-squared value for Q4.3 is 0.00339, whereas the R-squared value for Q4.4 is 0.9249. Since adding therm1 dramatically increases the R-squared value, this indicates that a large part of the variation in follow-up attitudes is explained by where people started.
+
+The predicted difference in Wave 2 attitudes is 2.458857, showing that the prediction model indicates a 2.45 difference between the treated and control groups.
